@@ -63,12 +63,14 @@ class _UploadShopPageState extends State<UploadShopPage> {
                     setState(() => images.removeWhere((img) => img.id == id)),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: submit,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: const Text('提交'),
+              TDButton(
+                text: '提交',
+                size: TDButtonSize.large,
+                type: TDButtonType.fill,
+                shape: TDButtonShape.rectangle,
+                theme: TDButtonTheme.primary,
+                isBlock: true,
+                onTap: submit,
               ),
             ],
           ),

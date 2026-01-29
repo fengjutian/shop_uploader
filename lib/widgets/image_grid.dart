@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../utils/image_util.dart';
 
@@ -40,17 +41,25 @@ class ImageGrid extends StatelessWidget {
             },
           );
         }
-        return Stack(
-          children: [
-            Image.file(images[i].file, fit: BoxFit.cover),
-            Positioned(
-              right: 0,
-              child: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => onRemove(images[i].id),
+        return GestureDetector(
+          onTap: () {
+            // 构建图片列表，用于预览
+            final imageList = images.map((img) => img.file.path).toList();
+            // 显示图片预览
+            TDImageViewer.showImageViewer(context: context, images: imageList);
+          },
+          child: Stack(
+            children: [
+              Image.file(images[i].file, fit: BoxFit.cover),
+              Positioned(
+                right: 0,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => onRemove(images[i].id),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

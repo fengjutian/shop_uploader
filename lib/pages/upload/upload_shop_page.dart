@@ -1,43 +1,66 @@
+import 'package:flutter/material.dart';
+import '../../models/shop_model.dart';
+import '../../services/shop_api.dart';
+import '../../widgets/image_grid.dart';
+
 class UploadShopPage extends StatefulWidget {
-const UploadShopPage({super.key});
+  const UploadShopPage({super.key});
 
-
-@override
-State<UploadShopPage> createState() => _UploadShopPageState();
+  @override
+  State<UploadShopPage> createState() => _UploadShopPageState();
 }
-
 
 class _UploadShopPageState extends State<UploadShopPage> {
-final _formKey = GlobalKey<FormState>();
-final nameCtrl = TextEditingController();
-final addrCtrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final nameCtrl = TextEditingController();
+  final addrCtrl = TextEditingController();
 
+  List<PickedImage> images = [];
 
-List<PickedImage> images = [];
+  Future<void> submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (images.isEmpty) return;
 
+    await ShopApi.uploadShop(
+      name: nameCtrl.text,
+      address: addrCtrl.text,
+      images: images.map((e) => e.file).toList(),
+    );
+  }
 
-Future<void> submit() async {
-if (!_formKey.currentState!.validate()) return;
-if (images.isEmpty) return;
-
-
-await ShopApi.uploadShop(
-name: nameCtrl.text,
-address: addrCtrl.text,
-images: images.map((e) => e.file).toList(),
-);
-}
-
-
-@override
-Widget build(BuildContext context) {
-return Scaffold(
-appBar: AppBar(title: const Text('上传店铺')),
-body: Padding(
-padding: const EdgeInsets.all(16),
-child: Form(
-key: _formKey,
-child: ListView(
-children: [
-TextFormField(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('上传店铺')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                controller: nameCtrl,
+                decoration: const InputDecoration(labelText: '店铺名称'),
+                validator: (value) => value?.isEmpty ?? true ? '请输入店铺名称' : null,
+              ),
+              TextFormField(
+                controller: addrCtrl,
+                decoration: const InputDecoration(labelText: '店铺地址'),
+                validator: (value) => value?.isEmpty ?? true ? '请输入店铺地址' : null,
+              ),
+              const SizedBox(height: 16),
+              ImageGrid(
+                images: images,
+                onAdd: (image) => setState(() => images.add(image)),
+                onRemove: (id) =>
+                    setState(() => images.removeWhere((img) => img.id == id)),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: submit, child: const Text('提交')),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+import '../../models/shop_model.dart';
+import '../../services/shop_api.dart';
+
 class ShopListPage extends StatelessWidget {
   const ShopListPage({super.key});
 

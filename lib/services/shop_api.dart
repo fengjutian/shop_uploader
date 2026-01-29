@@ -1,3 +1,8 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
+import '../models/shop_model.dart';
+import '../utils/device_util.dart';
+
 class ShopApi {
   static final dio = Dio(BaseOptions(baseUrl: 'https://api.xxx.com'));
 

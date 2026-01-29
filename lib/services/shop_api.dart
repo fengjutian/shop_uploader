@@ -9,6 +9,8 @@ class ShopApi {
   static Future<void> uploadShop({
     required String name,
     required String address,
+    double? latitude,
+    double? longitude,
     required List<File> images,
   }) async {
     final deviceId = await DeviceUtil.getDeviceId();
@@ -16,6 +18,8 @@ class ShopApi {
     final form = FormData.fromMap({
       'name': name,
       'address': address,
+      'latitude': latitude,
+      'longitude': longitude,
       'deviceId': deviceId,
       'images': images.map((f) => MultipartFile.fromFileSync(f.path)).toList(),
     });

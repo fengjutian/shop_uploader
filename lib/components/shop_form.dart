@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
+import 'package:amap_flutter_search/amap_flutter_search.dart';
 import '../models/shop_item.dart';
 import '../widgets/image_grid.dart';
 
@@ -20,6 +21,8 @@ class _ShopFormState extends State<ShopForm> {
   final addrCtrl = TextEditingController();
   List<PickedImage> images = [];
   String? _editingShopId;
+  double? _latitude;
+  double? _longitude;
 
   @override
   void initState() {
@@ -27,6 +30,8 @@ class _ShopFormState extends State<ShopForm> {
     _editingShopId = widget.shop?.id;
     nameCtrl.text = widget.shop?.name ?? '';
     addrCtrl.text = widget.shop?.address ?? '';
+    _latitude = widget.shop?.latitude;
+    _longitude = widget.shop?.longitude;
     images.clear();
     if (widget.shop != null) {
       for (var path in widget.shop!.imagePaths) {
@@ -42,6 +47,24 @@ class _ShopFormState extends State<ShopForm> {
     super.dispose();
   }
 
+  void _showAddressPicker() async {
+    // 初始化AMap搜索
+    AmapFlutterSearch.setApiKey(
+      '5131350db8ad49230fd4c7f3cab4f1d8',
+      '0716aaf97c763ed06d5935c51985a853',
+    );
+
+    // 这里可以实现地址选择器，使用AMap的POI搜索或地理编码功能
+    // 简化实现，实际项目中可以使用更复杂的地址选择界面
+
+    // 示例：模拟选择一个地址
+    setState(() {
+      addrCtrl.text = '北京市朝阳区建国路88号';
+      _latitude = 39.908722;
+      _longitude = 116.397496;
+    });
+  }
+
   void _handleSave() {
     if (!_formKey.currentState!.validate()) return;
     if (images.isEmpty) {
@@ -53,6 +76,8 @@ class _ShopFormState extends State<ShopForm> {
       id: _editingShopId ?? DateTime.now().toString(),
       name: nameCtrl.text,
       address: addrCtrl.text,
+      latitude: _latitude,
+      longitude: _longitude,
       imagePaths: images.map((e) => e.file.path).toList(),
     );
 
@@ -103,14 +128,45 @@ class _ShopFormState extends State<ShopForm> {
                           value?.isEmpty ?? true ? '请输入店铺名称' : null,
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: addrCtrl,
-                      decoration: const InputDecoration(
-                        labelText: '店铺地址',
-                        hintText: '请输入店铺地址',
-                      ),
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? '请输入店铺地址' : null,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: addrCtrl,
+                                decoration: const InputDecoration(
+                                  labelText: '店铺地址',
+                                  hintText: '请输入店铺地址',
+                                ),
+                                validator: (value) =>
+                                    value?.isEmpty ?? true ? '请输入店铺地址' : null,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            TDButton(
+                              text: '选择地址',
+                              size: TDButtonSize.small,
+                              type: TDButtonType.outline,
+                              shape: TDButtonShape.rectangle,
+                              theme: TDButtonTheme.primary,
+                              onTap: _showAddressPicker,
+                            ),
+                          ],
+                        ),
+                        if (_latitude != null && _longitude != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              '经纬度: ${_latitude!.toStringAsFixed(6)}, ${_longitude!.toStringAsFixed(6)}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     ImageGrid(

@@ -33,6 +33,17 @@ class ShopListItem extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(shop.address),
+            if (shop.latitude != null && shop.longitude != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '经纬度: ${shop.latitude!.toStringAsFixed(6)}, ${shop.longitude!.toStringAsFixed(6)}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
             const SizedBox(height: 12),
             if (shop.imagePaths.isNotEmpty)
               SizedBox(

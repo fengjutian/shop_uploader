@@ -58,6 +58,8 @@ class _UploadShopPageState extends State<UploadShopPage> {
             await ShopApi.uploadShop(
               name: shop.name,
               address: shop.address,
+              latitude: shop.latitude,
+              longitude: shop.longitude,
               images: shop.imagePaths.map((path) => File(path)).toList(),
             );
           } catch (e) {

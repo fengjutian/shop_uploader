@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import '../utils/image_util.dart';
 
 class PickedImage {
   final File file;
@@ -34,9 +35,8 @@ class ImageGrid extends StatelessWidget {
           return IconButton(
             icon: const Icon(Icons.add_a_photo),
             onPressed: () async {
-              // TODO: Implement image picking and compression
-              // final file = await ImageUtil.pickAndCompress();
-              // if (file != null) onAdd(PickedImage(file, const Uuid().v4()));
+              final file = await ImageUtil.pickAndCompress();
+              if (file != null) onAdd(PickedImage(file, const Uuid().v4()));
             },
           );
         }

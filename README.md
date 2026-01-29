@@ -1,16 +1,119 @@
-# shop_uploader
+# 店铺上传工具 (Shop Uploader)
 
-A new Flutter project.
+一个用于上传店铺信息和图片的 Flutter 应用。
 
-## Getting Started
+## 功能特性
 
-This project is a starting point for a Flutter application.
+- 📱 **上传店铺信息**：包括店铺名称和地址
+- 📷 **拍摄并上传图片**：支持相机拍照、图片压缩
+- 📋 **查看已上传店铺**：展示所有已上传的店铺列表
+- 📱 **响应式设计**：适配不同屏幕尺寸
 
-A few resources to get you started if this is your first Flutter project:
+## 项目结构
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```
+lib/
+├── app.dart              # 应用入口组件
+├── main.dart             # 应用主函数
+├── models/
+│   └── shop_model.dart   # 店铺模型
+├── pages/
+│   ├── home/
+│   │   └── home_tab_page.dart  # 主页标签页
+│   ├── list/
+│   │   └── shop_list_page.dart # 店铺列表页
+│   └── upload/
+│       └── upload_shop_page.dart # 上传店铺页
+├── services/
+│   └── shop_api.dart     # API 服务
+├── utils/
+│   ├── device_util.dart  # 设备工具
+│   └── image_util.dart   # 图片工具
+└── widgets/
+    └── image_grid.dart   # 图片网格组件
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 技术栈
+
+- **框架**：Flutter 3.10+
+- **语言**：Dart
+- **网络**：Dio
+- **图片处理**：
+  - image_picker (相机拍照)
+  - flutter_image_compress (图片压缩)
+  - path_provider (文件路径)
+- **其他**：
+  - uuid (生成唯一ID)
+  - device_info_plus (设备信息)
+
+## 开始使用
+
+### 前提条件
+
+- Flutter SDK 3.10+
+- Dart SDK 3.10+
+- Android Studio 或 VS Code (推荐)
+- Android 或 iOS 设备/模拟器
+
+### 安装步骤
+
+1. **克隆项目**
+   ```bash
+   git clone <repository-url>
+   cd shop_uploader
+   ```
+
+2. **安装依赖**
+   ```bash
+   flutter pub get
+   ```
+
+3. **运行项目**
+   ```bash
+   flutter run
+   ```
+
+### 功能使用
+
+1. **上传店铺**
+   - 点击底部导航栏的「上传」标签
+   - 填写店铺名称和地址
+   - 点击「添加照片」按钮拍摄店铺图片
+   - 点击「提交」按钮上传信息
+
+2. **查看已上传店铺**
+   - 点击底部导航栏的「列表」标签
+   - 查看所有已上传的店铺信息
+
+## API 配置
+
+项目默认使用模拟 API 地址 `https://api.xxx.com`，实际使用时需要修改 `shop_api.dart` 文件中的 API 地址：
+
+```dart
+static final dio = Dio(BaseOptions(baseUrl: 'https://api.xxx.com'));
+```
+
+## 注意事项
+
+- 应用需要相机权限才能拍摄图片
+- 上传功能依赖于网络连接
+- 图片会自动压缩以减少上传时间
+
+## 开发说明
+
+- 代码使用 Flutter 3.10+ 的空安全特性
+- 遵循 Dart 代码规范
+- 使用 Provider 模式管理状态
+- 采用 RESTful API 进行网络通信
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request 来改进这个项目！
+
+## 许可证
+
+MIT License
+
+## 联系方式
+
+如有问题，请联系项目维护者。

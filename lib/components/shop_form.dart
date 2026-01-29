@@ -4,6 +4,7 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:amap_flutter_search/amap_flutter_search.dart';
 import '../models/shop_item.dart';
 import '../widgets/image_grid.dart';
+import '../pages/map/map_picker_page.dart';
 
 class ShopForm extends StatefulWidget {
   final ShopItem? shop;
@@ -54,15 +55,21 @@ class _ShopFormState extends State<ShopForm> {
       '0716aaf97c763ed06d5935c51985a853',
     );
 
-    // 这里可以实现地址选择器，使用AMap的POI搜索或地理编码功能
-    // 简化实现，实际项目中可以使用更复杂的地址选择界面
-
-    // 示例：模拟选择一个地址
-    setState(() {
-      addrCtrl.text = '北京市朝阳区建国路88号';
-      _latitude = 39.908722;
-      _longitude = 116.397496;
-    });
+    // 导航到地图选择页面
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => MapPickerPage(
+          onSelectLocation: (address, latitude, longitude) {
+            // 在回调中更新地址和经纬度
+            setState(() {
+              addrCtrl.text = address;
+              _latitude = latitude;
+              _longitude = longitude;
+            });
+          },
+        ),
+      ),
+    );
   }
 
   void _handleSave() {

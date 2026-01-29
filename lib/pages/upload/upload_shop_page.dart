@@ -88,118 +88,127 @@ class _UploadShopPageState extends State<UploadShopPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Dialog(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Dialog(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      '添加店铺',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '添加店铺',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            // 清空表单
+                            nameCtrl.clear();
+                            addrCtrl.clear();
+                            images.clear();
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: nameCtrl,
+                              decoration: const InputDecoration(
+                                labelText: '店铺名称',
+                                hintText: '请输入店铺名称',
+                              ),
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? '请输入店铺名称' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: addrCtrl,
+                              decoration: const InputDecoration(
+                                labelText: '店铺地址',
+                                hintText: '请输入店铺地址',
+                              ),
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? '请输入店铺地址' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            ImageGrid(
+                              images: images,
+                              onAdd: (image) {
+                                setState(() => images.add(image));
+                              },
+                              onRemove: (id) {
+                                setState(
+                                  () =>
+                                      images.removeWhere((img) => img.id == id),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        // 清空表单
-                        nameCtrl.clear();
-                        addrCtrl.clear();
-                        images.clear();
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+                    const SizedBox(height: 20),
+                    Row(
                       children: [
-                        TextFormField(
-                          controller: nameCtrl,
-                          decoration: const InputDecoration(
-                            labelText: '店铺名称',
-                            hintText: '请输入店铺名称',
+                        Expanded(
+                          child: TDButton(
+                            text: '取消',
+                            size: TDButtonSize.large,
+                            type: TDButtonType.outline,
+                            shape: TDButtonShape.rectangle,
+                            theme: TDButtonTheme.primary,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              // 清空表单
+                              nameCtrl.clear();
+                              addrCtrl.clear();
+                              images.clear();
+                            },
                           ),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? '请输入店铺名称' : null,
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: addrCtrl,
-                          decoration: const InputDecoration(
-                            labelText: '店铺地址',
-                            hintText: '请输入店铺地址',
-                          ),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? '请输入店铺地址' : null,
-                        ),
-                        const SizedBox(height: 16),
-                        ImageGrid(
-                          images: images,
-                          onAdd: (image) => setState(() => images.add(image)),
-                          onRemove: (id) => setState(
-                            () => images.removeWhere((img) => img.id == id),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TDButton(
+                            text: '保存',
+                            size: TDButtonSize.large,
+                            type: TDButtonType.fill,
+                            shape: TDButtonShape.rectangle,
+                            theme: TDButtonTheme.primary,
+                            onTap: () async {
+                              if (!_formKey.currentState!.validate()) return;
+                              if (images.isEmpty) return;
+
+                              await _submitShop();
+                              Navigator.of(context).pop();
+                              // 清空表单
+                              nameCtrl.clear();
+                              addrCtrl.clear();
+                              images.clear();
+                            },
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TDButton(
-                        text: '取消',
-                        size: TDButtonSize.large,
-                        type: TDButtonType.outline,
-                        shape: TDButtonShape.rectangle,
-                        theme: TDButtonTheme.primary,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          // 清空表单
-                          nameCtrl.clear();
-                          addrCtrl.clear();
-                          images.clear();
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TDButton(
-                        text: '保存',
-                        size: TDButtonSize.large,
-                        type: TDButtonType.fill,
-                        shape: TDButtonShape.rectangle,
-                        theme: TDButtonTheme.primary,
-                        onTap: () async {
-                          if (!_formKey.currentState!.validate()) return;
-                          if (images.isEmpty) return;
-
-                          await _submitShop();
-                          Navigator.of(context).pop();
-                          // 清空表单
-                          nameCtrl.clear();
-                          addrCtrl.clear();
-                          images.clear();
-                        },
-                      ),
-                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -218,121 +227,130 @@ class _UploadShopPageState extends State<UploadShopPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Dialog(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Dialog(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      '编辑店铺',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '编辑店铺',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            // 清空表单
+                            nameCtrl.clear();
+                            addrCtrl.clear();
+                            images.clear();
+                            _editingShopId = null;
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: nameCtrl,
+                              decoration: const InputDecoration(
+                                labelText: '店铺名称',
+                                hintText: '请输入店铺名称',
+                              ),
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? '请输入店铺名称' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: addrCtrl,
+                              decoration: const InputDecoration(
+                                labelText: '店铺地址',
+                                hintText: '请输入店铺地址',
+                              ),
+                              validator: (value) =>
+                                  value?.isEmpty ?? true ? '请输入店铺地址' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            ImageGrid(
+                              images: images,
+                              onAdd: (image) {
+                                setState(() => images.add(image));
+                              },
+                              onRemove: (id) {
+                                setState(
+                                  () =>
+                                      images.removeWhere((img) => img.id == id),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        // 清空表单
-                        nameCtrl.clear();
-                        addrCtrl.clear();
-                        images.clear();
-                        _editingShopId = null;
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+                    const SizedBox(height: 20),
+                    Row(
                       children: [
-                        TextFormField(
-                          controller: nameCtrl,
-                          decoration: const InputDecoration(
-                            labelText: '店铺名称',
-                            hintText: '请输入店铺名称',
+                        Expanded(
+                          child: TDButton(
+                            text: '取消',
+                            size: TDButtonSize.large,
+                            type: TDButtonType.outline,
+                            shape: TDButtonShape.rectangle,
+                            theme: TDButtonTheme.primary,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              // 清空表单
+                              nameCtrl.clear();
+                              addrCtrl.clear();
+                              images.clear();
+                              _editingShopId = null;
+                            },
                           ),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? '请输入店铺名称' : null,
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: addrCtrl,
-                          decoration: const InputDecoration(
-                            labelText: '店铺地址',
-                            hintText: '请输入店铺地址',
-                          ),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? '请输入店铺地址' : null,
-                        ),
-                        const SizedBox(height: 16),
-                        ImageGrid(
-                          images: images,
-                          onAdd: (image) => setState(() => images.add(image)),
-                          onRemove: (id) => setState(
-                            () => images.removeWhere((img) => img.id == id),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TDButton(
+                            text: '保存',
+                            size: TDButtonSize.large,
+                            type: TDButtonType.fill,
+                            shape: TDButtonShape.rectangle,
+                            theme: TDButtonTheme.primary,
+                            onTap: () async {
+                              if (!_formKey.currentState!.validate()) return;
+                              if (images.isEmpty) return;
+
+                              await _submitShop();
+                              Navigator.of(context).pop();
+                              // 清空表单
+                              nameCtrl.clear();
+                              addrCtrl.clear();
+                              images.clear();
+                              _editingShopId = null;
+                            },
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TDButton(
-                        text: '取消',
-                        size: TDButtonSize.large,
-                        type: TDButtonType.outline,
-                        shape: TDButtonShape.rectangle,
-                        theme: TDButtonTheme.primary,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          // 清空表单
-                          nameCtrl.clear();
-                          addrCtrl.clear();
-                          images.clear();
-                          _editingShopId = null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TDButton(
-                        text: '保存',
-                        size: TDButtonSize.large,
-                        type: TDButtonType.fill,
-                        shape: TDButtonShape.rectangle,
-                        theme: TDButtonTheme.primary,
-                        onTap: () async {
-                          if (!_formKey.currentState!.validate()) return;
-                          if (images.isEmpty) return;
-
-                          await _submitShop();
-                          Navigator.of(context).pop();
-                          // 清空表单
-                          nameCtrl.clear();
-                          addrCtrl.clear();
-                          images.clear();
-                          _editingShopId = null;
-                        },
-                      ),
-                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );

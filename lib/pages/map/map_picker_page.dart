@@ -20,6 +20,9 @@ class _MapPickerPageState extends State<MapPickerPage> {
   @override
   void initState() {
     super.initState();
+    // 设置隐私合规
+    AmapFlutterSearch.updatePrivacyAgree(true);
+    AmapFlutterSearch.updatePrivacyShow(true, true);
     // 初始化AMap搜索
     AmapFlutterSearch.setApiKey(
       '5131350db8ad49230fd4c7f3cab4f1d8',
@@ -102,6 +105,11 @@ class _MapPickerPageState extends State<MapPickerPage> {
               apiKey: const AMapApiKey(
                 androidKey: '5131350db8ad49230fd4c7f3cab4f1d8',
                 iosKey: '0716aaf97c763ed06d5935c51985a853',
+              ),
+              privacyStatement: const AMapPrivacyStatement(
+                hasContains: true,
+                hasShow: true,
+                hasAgree: true,
               ),
             ),
           ),

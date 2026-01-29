@@ -1,0 +1,20 @@
+{
+    "adcode" : "",
+    "address" : "",
+    "businessArea" : "",
+    "city" : "",
+    "citycode" : "",
+    "direction" : "",
+    "distance" : 0,
+    "district":"",
+    "email":"",
+    "gridcode" : "",
+    "hasIndoorMap" : 0,
+    "location" :         {
+        "latitude" : "28.503045",
+        "longitude" : "115.757683"
+    },
+    "name" : "",
+    "parkingType" : "",
+    "pcode" : ""
+}

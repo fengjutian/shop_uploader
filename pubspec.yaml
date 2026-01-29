@@ -37,8 +37,16 @@ dependencies:
   uuid: ^4.3.3
   path_provider: ^2.1.3
   shared_preferences: ^2.2.3
-  amap_flutter_map: ^3.0.0
+  amap_flutter_map: ^2.0.0
   amap_flutter_search: ^0.0.4
+
+dependency_overrides:
+  amap_flutter_base:
+    path: packages/amap_flutter_base
+  amap_flutter_map:
+    path: packages/amap_flutter_map
+  amap_flutter_search:
+    path: packages/amap_flutter_search
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

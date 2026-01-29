@@ -47,7 +47,6 @@ class ShopItem {
 
 class _UploadShopPageState extends State<UploadShopPage> {
   List<ShopItem> shops = [];
-  bool _isDialogVisible = false;
   String? _editingShopId;
 
   final _formKey = GlobalKey<FormState>();
@@ -79,156 +78,68 @@ class _UploadShopPageState extends State<UploadShopPage> {
     await prefs.setString('shops', shopsJson);
   }
 
-  Future<void> _showAddShopDialog() async {
-    _editingShopId = null;
-    nameCtrl.clear();
-    addrCtrl.clear();
-    images.clear();
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Dialog(
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          '添加店铺',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            // 清空表单
-                            nameCtrl.clear();
-                            addrCtrl.clear();
-                            images.clear();
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    SingleChildScrollView(
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextFormField(
-                              controller: nameCtrl,
-                              decoration: const InputDecoration(
-                                labelText: '店铺名称',
-                                hintText: '请输入店铺名称',
-                              ),
-                              validator: (value) =>
-                                  value?.isEmpty ?? true ? '请输入店铺名称' : null,
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: addrCtrl,
-                              decoration: const InputDecoration(
-                                labelText: '店铺地址',
-                                hintText: '请输入店铺地址',
-                              ),
-                              validator: (value) =>
-                                  value?.isEmpty ?? true ? '请输入店铺地址' : null,
-                            ),
-                            const SizedBox(height: 16),
-                            ImageGrid(
-                              images: images,
-                              onAdd: (image) {
-                                setState(() => images.add(image));
-                              },
-                              onRemove: (id) {
-                                setState(
-                                  () =>
-                                      images.removeWhere((img) => img.id == id),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TDButton(
-                            text: '取消',
-                            size: TDButtonSize.large,
-                            type: TDButtonType.outline,
-                            shape: TDButtonShape.rectangle,
-                            theme: TDButtonTheme.primary,
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              // 清空表单
-                              nameCtrl.clear();
-                              addrCtrl.clear();
-                              images.clear();
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TDButton(
-                            text: '保存',
-                            size: TDButtonSize.large,
-                            type: TDButtonType.fill,
-                            shape: TDButtonShape.rectangle,
-                            theme: TDButtonTheme.primary,
-                            onTap: () async {
-                              if (!_formKey.currentState!.validate()) return;
-                              if (images.isEmpty) return;
+  Future<void> _submitShop() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (images.isEmpty) return;
 
-                              await _submitShop();
-                              Navigator.of(context).pop();
-                              // 清空表单
-                              nameCtrl.clear();
-                              addrCtrl.clear();
-                              images.clear();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+    setState(() {
+      if (_editingShopId != null) {
+        // 编辑
+        final index = shops.indexWhere((shop) => shop.id == _editingShopId);
+        if (index != -1) {
+          shops[index] = ShopItem(
+            id: _editingShopId!,
+            name: nameCtrl.text,
+            address: addrCtrl.text,
+            imagePaths: images.map((e) => e.file.path).toList(),
+          );
+        }
+      } else {
+        // 添加新店铺
+        final newShop = ShopItem(
+          id: DateTime.now().toString(),
+          name: nameCtrl.text,
+          address: addrCtrl.text,
+          imagePaths: images.map((e) => e.file.path).toList(),
         );
-      },
-    );
+        shops.add(newShop);
+
+        // 上传到服务器
+        Future(() async {
+          try {
+            await ShopApi.uploadShop(
+              name: nameCtrl.text,
+              address: addrCtrl.text,
+              images: images.map((e) => e.file).toList(),
+            );
+          } catch (e) {
+            print('上传失败: $e');
+          }
+        });
+      }
+    });
+
+    // 保存本地
+    await _saveShops();
   }
 
-  Future<void> _showEditShopDialog(ShopItem shop) async {
-    _editingShopId = shop.id;
-    nameCtrl.text = shop.name;
-    addrCtrl.text = shop.address;
+  Future<void> _showShopDialog({ShopItem? shop}) async {
+    _editingShopId = shop?.id;
+    nameCtrl.text = shop?.name ?? '';
+    addrCtrl.text = shop?.address ?? '';
     images.clear();
-    // 转换 imagePaths 为 PickedImage
-    for (var path in shop.imagePaths) {
-      images.add(PickedImage(File(path), DateTime.now().toString()));
+    if (shop != null) {
+      for (var path in shop.imagePaths) {
+        images.add(PickedImage(File(path), DateTime.now().toString()));
+      }
     }
+
     await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
+          builder: (context, setState) {
             return Dialog(
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.8,
@@ -239,9 +150,9 @@ class _UploadShopPageState extends State<UploadShopPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          '编辑店铺',
-                          style: TextStyle(
+                        Text(
+                          shop == null ? '添加店铺' : '编辑店铺',
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -250,7 +161,6 @@ class _UploadShopPageState extends State<UploadShopPage> {
                           icon: const Icon(Icons.close),
                           onPressed: () {
                             Navigator.of(context).pop();
-                            // 清空表单
                             nameCtrl.clear();
                             addrCtrl.clear();
                             images.clear();
@@ -288,15 +198,11 @@ class _UploadShopPageState extends State<UploadShopPage> {
                             const SizedBox(height: 16),
                             ImageGrid(
                               images: images,
-                              onAdd: (image) {
-                                setState(() => images.add(image));
-                              },
-                              onRemove: (id) {
-                                setState(
-                                  () =>
-                                      images.removeWhere((img) => img.id == id),
-                                );
-                              },
+                              onAdd: (image) =>
+                                  setState(() => images.add(image)),
+                              onRemove: (id) => setState(
+                                () => images.removeWhere((img) => img.id == id),
+                              ),
                             ),
                           ],
                         ),
@@ -314,7 +220,6 @@ class _UploadShopPageState extends State<UploadShopPage> {
                             theme: TDButtonTheme.primary,
                             onTap: () {
                               Navigator.of(context).pop();
-                              // 清空表单
                               nameCtrl.clear();
                               addrCtrl.clear();
                               images.clear();
@@ -332,15 +237,25 @@ class _UploadShopPageState extends State<UploadShopPage> {
                             theme: TDButtonTheme.primary,
                             onTap: () async {
                               if (!_formKey.currentState!.validate()) return;
-                              if (images.isEmpty) return;
+                              if (images.isEmpty) {
+                                TDToast.showText('请添加至少一张图片', context: context);
+                                return;
+                              }
 
-                              await _submitShop();
-                              Navigator.of(context).pop();
-                              // 清空表单
-                              nameCtrl.clear();
-                              addrCtrl.clear();
-                              images.clear();
-                              _editingShopId = null;
+                              try {
+                                await _submitShop();
+                                // 保存成功后关闭弹层
+                                Navigator.pop(context);
+                              } catch (e) {
+                                print('保存店铺失败: $e');
+                                TDToast.showText('保存失败', context: context);
+                              } finally {
+                                // 清空表单
+                                nameCtrl.clear();
+                                addrCtrl.clear();
+                                images.clear();
+                                _editingShopId = null;
+                              }
                             },
                           ),
                         ),
@@ -356,88 +271,10 @@ class _UploadShopPageState extends State<UploadShopPage> {
     );
   }
 
-  void _hideAddShopDialog() {
-    // 不再需要这个方法，因为我们使用 showDialog 来显示弹层
-  }
-
-  Future<void> _submitShop() async {
-    print('开始执行 _submitShop 方法');
-    if (!_formKey.currentState!.validate()) {
-      print('表单验证失败');
-      return;
-    }
-    if (images.isEmpty) {
-      print('图片为空');
-      return;
-    }
-
-    try {
-      print('开始处理店铺数据');
-      if (_editingShopId != null) {
-        // 编辑现有店铺
-        print('编辑现有店铺，ID: $_editingShopId');
-        setState(() {
-          final index = shops.indexWhere((shop) => shop.id == _editingShopId);
-          if (index != -1) {
-            shops[index] = ShopItem(
-              id: _editingShopId!,
-              name: nameCtrl.text,
-              address: addrCtrl.text,
-              imagePaths: images.map((e) => e.file.path).toList(),
-            );
-            print('店铺数据已更新');
-          }
-        });
-      } else {
-        // 添加新店铺
-        print('添加新店铺');
-        final newShop = ShopItem(
-          id: DateTime.now().toString(),
-          name: nameCtrl.text,
-          address: addrCtrl.text,
-          imagePaths: images.map((e) => e.file.path).toList(),
-        );
-
-        setState(() {
-          shops.add(newShop);
-          print('新店铺已添加到列表');
-        });
-
-        // 实际的 API 调用
-        print('开始上传到服务器');
-        try {
-          await ShopApi.uploadShop(
-            name: nameCtrl.text,
-            address: addrCtrl.text,
-            images: images.map((e) => e.file).toList(),
-          );
-          print('上传到服务器成功');
-        } catch (apiError) {
-          print('上传到服务器失败: $apiError');
-          // 不抛出错误，继续执行
-        }
-      }
-
-      // 保存到本地存储
-      print('开始保存到本地存储');
-      await _saveShops();
-      print('保存到本地存储成功');
-    } catch (e) {
-      // 打印错误信息
-      print('保存店铺失败: $e');
-    } finally {
-      // 关闭弹层
-      print('执行 finally 块，关闭弹层');
-      _hideAddShopDialog();
-      print('弹层已关闭');
-    }
-  }
-
   Future<void> _deleteShop(String id) async {
     setState(() {
       shops.removeWhere((shop) => shop.id == id);
     });
-    // 保存到本地存储
     await _saveShops();
   }
 
@@ -449,7 +286,6 @@ class _UploadShopPageState extends State<UploadShopPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // 添加按钮
             TDButton(
               text: '添加店铺',
               size: TDButtonSize.large,
@@ -457,11 +293,9 @@ class _UploadShopPageState extends State<UploadShopPage> {
               shape: TDButtonShape.rectangle,
               theme: TDButtonTheme.primary,
               isBlock: true,
-              onTap: _showAddShopDialog,
+              onTap: () => _showShopDialog(),
             ),
             const SizedBox(height: 16),
-
-            // 店铺列表
             Expanded(
               child: shops.isEmpty
                   ? Center(
@@ -522,7 +356,7 @@ class _UploadShopPageState extends State<UploadShopPage> {
                                       type: TDButtonType.outline,
                                       shape: TDButtonShape.rectangle,
                                       theme: TDButtonTheme.primary,
-                                      onTap: () => _showEditShopDialog(shop),
+                                      onTap: () => _showShopDialog(shop: shop),
                                     ),
                                     const SizedBox(width: 8),
                                     TDButton(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../upload/upload_shop_page.dart';
-import '../list/shop_list_page.dart';
+import '../list/profile_page.dart';
 
 class HomeTabPage extends StatefulWidget {
   const HomeTabPage({super.key});
@@ -12,7 +12,7 @@ class HomeTabPage extends StatefulWidget {
 class _HomeTabPageState extends State<HomeTabPage> {
   int index = 0;
 
-  final pages = const [UploadShopPage(), ShopListPage()];
+  final pages = const [UploadShopPage(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {

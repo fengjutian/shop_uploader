@@ -108,15 +108,6 @@ class _UploadShopPageState extends State<UploadShopPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TDButton(
-              text: '添加店铺',
-              size: TDButtonSize.large,
-              type: TDButtonType.outline,
-              shape: TDButtonShape.rectangle,
-              theme: TDButtonTheme.primary,
-              isBlock: true,
-              onTap: _showAddShopDialog,
-            ),
             const SizedBox(height: 16),
             Expanded(
               child: shops.isEmpty
@@ -140,6 +131,14 @@ class _UploadShopPageState extends State<UploadShopPage> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: TDFab(
+        theme: TDFabTheme.primary,
+        size: TDFabSize.large,
+        shape: TDFabShape.square,
+        text: '添加店铺',
+        icon: const Icon(Icons.add, color: Colors.white),
+        onClick: _showAddShopDialog,
       ),
     );
   }

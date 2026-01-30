@@ -20,10 +20,14 @@ class _ShopFormState extends State<ShopForm> {
   final _formKey = GlobalKey<FormState>();
   final nameCtrl = TextEditingController();
   final addrCtrl = TextEditingController();
+  final typeCtrl = TextEditingController();
+  final descCtrl = TextEditingController();
   List<PickedImage> images = [];
   String? _editingShopId;
   double? _latitude;
   double? _longitude;
+  String? _type;
+  String? _description;
 
   @override
   void initState() {
@@ -31,8 +35,12 @@ class _ShopFormState extends State<ShopForm> {
     _editingShopId = widget.shop?.id;
     nameCtrl.text = widget.shop?.name ?? '';
     addrCtrl.text = widget.shop?.address ?? '';
+    typeCtrl.text = widget.shop?.type ?? '';
+    descCtrl.text = widget.shop?.description ?? '';
     _latitude = widget.shop?.latitude;
     _longitude = widget.shop?.longitude;
+    _type = widget.shop?.type;
+    _description = widget.shop?.description;
     images.clear();
     if (widget.shop != null) {
       for (var path in widget.shop!.imagePaths) {
@@ -45,6 +53,8 @@ class _ShopFormState extends State<ShopForm> {
   void dispose() {
     nameCtrl.dispose();
     addrCtrl.dispose();
+    typeCtrl.dispose();
+    descCtrl.dispose();
     super.dispose();
   }
 
@@ -59,12 +69,16 @@ class _ShopFormState extends State<ShopForm> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => MapPickerPage(
-          onSelectLocation: (address, latitude, longitude) {
+          onSelectLocation: (address, latitude, longitude, type, description) {
             // 在回调中更新地址和经纬度
             setState(() {
               addrCtrl.text = address;
               _latitude = latitude;
               _longitude = longitude;
+              _type = type;
+              _description = description;
+              typeCtrl.text = type ?? '';
+              descCtrl.text = description ?? '';
             });
           },
         ),
@@ -86,6 +100,8 @@ class _ShopFormState extends State<ShopForm> {
       latitude: _latitude,
       longitude: _longitude,
       imagePaths: images.map((e) => e.file.path).toList(),
+      type: typeCtrl.text.isEmpty ? null : typeCtrl.text,
+      description: descCtrl.text.isEmpty ? null : descCtrl.text,
     );
 
     widget.onSave(shop);
@@ -174,6 +190,23 @@ class _ShopFormState extends State<ShopForm> {
                             ),
                           ),
                       ],
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: typeCtrl,
+                      decoration: const InputDecoration(
+                        labelText: '类型',
+                        hintText: '请输入店铺类型',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: descCtrl,
+                      decoration: const InputDecoration(
+                        labelText: '简介',
+                        hintText: '请输入店铺简介',
+                      ),
+                      maxLines: 3,
                     ),
                     const SizedBox(height: 16),
                     ImageGrid(

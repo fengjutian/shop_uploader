@@ -5,6 +5,8 @@ class ShopItem {
   final double? latitude;
   final double? longitude;
   final List<String> imagePaths;
+  final String? type;
+  final String? description;
 
   ShopItem({
     required this.id,
@@ -13,6 +15,8 @@ class ShopItem {
     this.latitude,
     this.longitude,
     required this.imagePaths,
+    this.type,
+    this.description,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +27,8 @@ class ShopItem {
       'latitude': latitude,
       'longitude': longitude,
       'imagePaths': imagePaths,
+      'type': type,
+      'description': description,
     };
   }
 
@@ -34,6 +40,8 @@ class ShopItem {
       latitude: map['latitude'],
       longitude: map['longitude'],
       imagePaths: List<String>.from(map['imagePaths']),
+      type: map['type'],
+      description: map['description'],
     );
   }
 }

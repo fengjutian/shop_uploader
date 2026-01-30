@@ -4,7 +4,7 @@ import 'package:amap_flutter_search/amap_flutter_search.dart';
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 
 class MapPickerPage extends StatefulWidget {
-  final Function(String, double, double) onSelectLocation;
+  final Function(String, double, double, String?, String?) onSelectLocation;
 
   const MapPickerPage({super.key, required this.onSelectLocation});
 
@@ -16,6 +16,8 @@ class _MapPickerPageState extends State<MapPickerPage> {
   late AMapController _mapController;
   LatLng? _selectedLatLng;
   String _selectedAddress = '';
+  String _type = '';
+  String _description = '';
 
   @override
   void initState() {
@@ -67,6 +69,8 @@ class _MapPickerPageState extends State<MapPickerPage> {
         _selectedAddress,
         _selectedLatLng!.latitude,
         _selectedLatLng!.longitude,
+        _type,
+        _description,
       );
       Navigator.of(context).pop();
     }
@@ -139,6 +143,41 @@ class _MapPickerPageState extends State<MapPickerPage> {
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ),
+                const SizedBox(height: 16),
+                const Text(
+                  '类型:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      _type = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: '请输入类型',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '简介:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      _description = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: '请输入简介',
+                  ),
+                  maxLines: 3,
+                ),
               ],
             ),
           ),
